@@ -1,0 +1,7 @@
+include 'eureka-server'
+include 'zuul-server'
+include 'product-service'
+include 'customer-service'
+include 'composite-service'
+
+rootProject.name = 'spring-netflix'

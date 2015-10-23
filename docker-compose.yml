@@ -1,0 +1,58 @@
+eureka-server:
+  image: mwongho/eureka-server
+  restart: always
+  hostname: eureka-server
+  name: eureka-server
+  ports:
+    - "8761:8761"
+    
+zuul-server:
+  image: mwongho/zuul-server
+  restart: always
+  links:
+    - eureka-server
+    - composite-service
+  environment:
+     EUREKA_HOST: eureka-server
+     EUREKA_PORT: 8761
+  ports:
+    - "8765:8765"
+    
+composite-service:
+  image: mwongho/composite-service
+  restart: always
+  links:
+    - eureka-server
+    - product-service
+    - product2-service
+    - customer-service
+  environment:
+     EUREKA_HOST: eureka-server
+     EUREKA_PORT: 8761
+
+product-service:
+  image: mwongho/product-service
+  restart: always
+  links:
+    - eureka-server
+  environment:
+     EUREKA_HOST: eureka-server
+     EUREKA_PORT: 8761
+     
+product2-service:
+  image: mwongho/product-service
+  restart: always
+  links:
+    - eureka-server
+  environment:
+     EUREKA_HOST: eureka-server
+     EUREKA_PORT: 8761
+     
+customer-service:
+  image: mwongho/customer-service
+  restart: always
+  links:
+    - eureka-server
+  environment:
+     EUREKA_HOST: eureka-server
+     EUREKA_PORT: 8761

@@ -1,0 +1,197 @@
+buildscript {
+     ext {
+          springBootVersion = '1.2.7.RELEASE'
+     }
+     repositories {
+        	jcenter()
+        	mavenCentral()
+			maven {
+	        	url "http://shaka:8081/nexus/content/groups/public"
+	    	}
+     }
+     dependencies {
+          classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		  classpath('se.transmode.gradle:gradle-docker:1.2')
+     }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            url "http://shaka:8081/nexus/content/groups/public"
+        }
+        mavenLocal()
+    }
+
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'docker'
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    group = 'mwongho'
+    
+    task buildDocker(type: Docker, dependsOn: build) {
+	  push = true
+	  applicationName = jar.baseName
+	  dockerfile = file('src/main/docker/Dockerfile')
+	  doFirst {
+	    copy {
+	      from jar
+	      into stageDir
+	    }
+	  }
+	 }
+	 
+	 task wrapper(type: Wrapper) {
+	    gradleVersion = '2.7'
+	}
+}
+
+project(':eureka-server') {
+    apply plugin: 'spring-boot'
+    
+    dependencies {
+	    compile("org.springframework.boot:spring-boot-starter-web") {
+	        exclude module: 'spring-boot-starter-tomcat'
+	    }
+	    compile("org.springframework.boot:spring-boot-starter-undertow")
+	    compile("org.springframework.boot:spring-boot-starter-actuator")
+	    compile('org.springframework.cloud:spring-cloud-starter-eureka-server:1.0.3.RELEASE')
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    // https://github.com/spring-cloud/spring-cloud-netflix/issues/22
+    // http://projects.spring.io/spring-cloud/spring-cloud.html#_service_discovery_eureka_server
+    springBoot {
+        requiresUnpack = ['com.netflix.eureka:eureka-core', 'com.netflix.eureka:eureka-client']
+    }
+
+    jar {
+        baseName = 'eureka-server'
+        version = '0.0.1-SNAPSHOT'
+    }
+}
+
+project(':zuul-server') {
+    apply plugin: 'spring-boot'
+
+    dependencies {
+	     compile("org.springframework.boot:spring-boot-starter-web") {
+	          exclude module: 'spring-boot-starter-tomcat'
+	     }
+	     compile("org.springframework.boot:spring-boot-starter-undertow")
+	     compile("org.springframework.boot:spring-boot-starter-actuator")
+	     compile('org.springframework.cloud:spring-cloud-starter-zuul:1.0.3.RELEASE')
+	     compile('org.springframework.cloud:spring-cloud-starter-eureka:1.0.3.RELEASE')
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    jar {
+        baseName = 'zuul-server'
+        version = '0.0.1-SNAPSHOT'
+    }
+}
+
+project(':product-service') {
+    apply plugin: 'spring-boot'
+    apply plugin: 'maven-publish'
+
+    dependencies {
+        compile("org.springframework.cloud:spring-cloud-starter-parent:Angel.SR3")
+        compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.3.RELEASE")
+
+        compile('org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE')
+        compile("org.springframework.boot:spring-boot-starter-actuator:1.2.7.RELEASE")
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    jar {
+        baseName = 'product-service'
+        version = '0.0.1-SNAPSHOT'
+    }
+    
+    // $ gradle publishToMavenLocal
+	publishing {
+	
+	    publications {
+	        mavenJava(MavenPublication) {
+	             groupId 'za.co.mwongho.microservice.product'
+	            artifactId 'product-service'
+	            version '0.0.1-SNAPSHOT'
+	
+	            from components.java
+	        }
+	    }
+	}
+}
+
+project(':customer-service') {
+    apply plugin: 'spring-boot'
+    apply plugin: 'maven-publish'
+
+    dependencies {
+        compile("org.springframework.cloud:spring-cloud-starter-parent:Angel.SR3")
+        compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.3.RELEASE")
+
+        compile('org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE')
+        compile("org.springframework.boot:spring-boot-starter-actuator:1.2.7.RELEASE")
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    jar {
+        baseName = 'customer-service'
+        version = '0.0.1-SNAPSHOT'
+    }
+    
+    // $ gradle publishToMavenLocal
+	publishing {
+	
+	    publications {
+	        mavenJava(MavenPublication) {
+	            groupId 'za.co.mwongho.microservice.customer'
+	            artifactId 'customer-service'
+	            version '0.0.1-SNAPSHOT'
+	
+	            from components.java
+	        }
+	    }
+	}
+}
+
+project(':composite-service') {
+    apply plugin: 'spring-boot'
+
+    dependencies {
+        compile("org.springframework.cloud:spring-cloud-starter-parent:Angel.SR3")
+        compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.3.RELEASE")
+
+        compile("org.springframework.boot:spring-boot-starter-web")
+        compile("org.springframework.boot:spring-boot-starter-actuator")
+        
+        compile("za.co.mwongho.microservice.product:product-service:0.0.1-SNAPSHOT")
+        compile("za.co.mwongho.microservice.customer:customer-service:0.0.1-SNAPSHOT")
+
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+    }
+
+    jar {
+        baseName = 'composite-service'
+        version = '0.0.1-SNAPSHOT'
+    }
+    
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.7'
+}
