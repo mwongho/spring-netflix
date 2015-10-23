@@ -19,10 +19,6 @@ public class Util {
     private LoadBalancerClient loadBalancer;
 
     public URI getServiceUrl(String serviceId) {
-//        List<ServiceInstance> list = discoveryClient.getInstances(serviceId);
-//        if (list != null && list.size() > 0 ) {
-//            return list.get(0).getUri();
-//        }
     	ServiceInstance serviceInstance = loadBalancer.choose(serviceId);
     	if(serviceInstance != null){
     		return serviceInstance.getUri();
