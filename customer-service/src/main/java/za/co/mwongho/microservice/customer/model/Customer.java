@@ -9,8 +9,6 @@ public class Customer {
 
     }
 
-    
-
 	public Customer(long id, long orderId, String name) {
 		super();
 		this.id = id;

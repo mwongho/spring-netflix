@@ -26,27 +26,18 @@ public class OrderCompositeService {
     @Autowired
     Util util;
 
-    @RequestMapping("/")
-    public String getProduct() {
-        return "{\"timestamp\":\"" + new Date() + "\",\"content\":\"Hello from ProductAPi\"}";
-    }
-
     @RequestMapping("/order/{orderId}")
     public ResponseEntity<Order> getOrder(@PathVariable long orderId) {
 
-        // 1. First get mandatory product information
         ResponseEntity<Product> productResult = integration.getProduct(orderId);
 
         if (!productResult.getStatusCode().is2xxSuccessful()) {
-            // We can't proceed, return whatever fault we got from the getProduct call
             return util.createResponse(null, productResult.getStatusCode());
         }
         
-        // 1. First get mandatory customer information
         ResponseEntity<Customer> customerResult = integration.getCustomer(orderId);
 
         if (!customerResult.getStatusCode().is2xxSuccessful()) {
-            // We can't proceed, return whatever fault we got from the getProduct call
             return util.createResponse(null, customerResult.getStatusCode());
         }
 

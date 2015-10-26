@@ -27,55 +27,31 @@ public class OrderCompositeIntegration {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    // -------- //
-    // PRODUCTS //
-    // -------- //
-
     public ResponseEntity<Product> getProduct(long productId) {
 
         URI uri = util.getServiceUrl("product-service");
-        LOG.debug("getProduct from URI: {}", uri);
         String url = uri.toString() + "/product?orderId=" + productId;
-        LOG.debug("getProduct from URL: {}", url);
+        LOG.debug("url	:"+url);
 
         ResponseEntity<String> resultStr = restTemplate.getForEntity(url, String.class);
-        LOG.debug("getProduct http-status: {}", resultStr.getStatusCode());
-        LOG.debug("getProduct body: {}", resultStr.getBody());
-
         Product product = response2Product(resultStr);
         LOG.debug("getProduct.id: {}", product.getId());
 
         return util.createOkResponse(product);
     }
     
-    // -------- //
-    // CUSTOMER //
-    // -------- //
-
     public ResponseEntity<Customer> getCustomer(long customerId) {
 
         URI uri = util.getServiceUrl("customer-service");
-        LOG.debug("getCustomer from URI: {}", uri);
         String url = uri.toString() + "/customer?orderId=" + customerId;
-        LOG.debug("getCustomer from URL: {}", url);
+        LOG.debug("url	:"+url);
 
         ResponseEntity<String> resultStr = restTemplate.getForEntity(url, String.class);
-        LOG.debug("getCustomer http-status: {}", resultStr.getStatusCode());
-        LOG.debug("getCustomer body: {}", resultStr.getBody());
-
         Customer customer = response2Customer(resultStr);
-        LOG.debug("getCustomer.id: {}", customer.getId());
 
         return util.createOkResponse(customer);
     }
 
-    // ----- //
-    // UTILS //
-    // ----- //
-
-    /*
-     * TODO: Extract to a common util-lib
-     */
 
     private ObjectReader getObjectReader(Class<?> type) {
         ObjectMapper mapper = new ObjectMapper();
