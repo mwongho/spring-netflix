@@ -175,6 +175,7 @@ project(':composite-service') {
     dependencies {
         compile("org.springframework.cloud:spring-cloud-starter-parent:Angel.SR3")
         compile("org.springframework.cloud:spring-cloud-starter-eureka:1.0.3.RELEASE")
+        compile 'org.springframework.cloud:spring-cloud-starter-feign:1.0.3.RELEASE'
 
         compile("org.springframework.boot:spring-boot-starter-web")
         compile("org.springframework.boot:spring-boot-starter-actuator")

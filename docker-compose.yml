@@ -24,22 +24,12 @@ composite-service:
   links:
     - eureka-server
     - product-service
-    - product2-service
     - customer-service
   environment:
      EUREKA_HOST: eureka-server
      EUREKA_PORT: 8761
 
 product-service:
-  image: mwongho/product-service
-  restart: always
-  links:
-    - eureka-server
-  environment:
-     EUREKA_HOST: eureka-server
-     EUREKA_PORT: 8761
-     
-product2-service:
   image: mwongho/product-service
   restart: always
   links:
