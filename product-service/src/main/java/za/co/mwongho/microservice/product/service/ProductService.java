@@ -15,7 +15,7 @@ public class ProductService {
 	private static final Logger LOG = LoggerFactory.getLogger(ProductService.class);
 
     @RequestMapping("/product")
-    public Product getProduct(@RequestParam(value = "orderId", required = true) int orderId) {
+    public Product getProduct(@RequestParam(value = "orderId", required = true) long orderId) {
     	LOG.debug("GetProduct ");
         return new Product(1, orderId, "Foo");
     }
